@@ -1,6 +1,6 @@
 from fastmcp import FastMCP
 
-mcp = FastMCP("Demo 🚀")
+mcp = FastMCP("Demo", host="0.0.0.0", port=8090)
 
 @mcp.tool()
 def add(a: int, b: int) -> int:
@@ -8,4 +8,4 @@ def add(a: int, b: int) -> int:
     return a + b
 
 if __name__ == "__main__":
-    mcp.run()
+     mcp.run(transport="sse")

@@ -6,10 +6,8 @@ server = FastMCP("TestServer")
 client = Client(server)
 
 # HTTP server
-client = Client("https://example.com/mcp")
+client = Client("http://localhost:8090/sse")
 
-# Local Python script
-client = Client("my_mcp_server.py")
 
 async def main():
     async with client:
@@ -22,7 +20,7 @@ async def main():
         prompts = await client.list_prompts()
 
         # Execute operations
-        result = await client.call_tool("example_tool", {"param": "value"})
+        result = await client.call_tool("add", {"a": 5, "b": 3})
         print(result)
 
 asyncio.run(main())
