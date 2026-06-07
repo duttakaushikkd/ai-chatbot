@@ -1,6 +1,13 @@
 import json
+import uuid
+from fastapi import APIRouter
+from pydantic import BaseModel
 from mcp_client import create_client
 from litellm import completion  # Supports OpenAI, Anthropic, Gemini, etc.
+
+router = APIRouter()
+
+
 
 
 
@@ -82,6 +89,17 @@ class ChatCore:
                 }
             }
         }]
+
+class ChatRequest(BaseModel):
+    prompt: str
+    session_id: str | None = None
+
+@router.post("/chat")
+async def chat(request: ChatRequest):
+    session_id = request.session_id or f"anon_{uuid.uuid4().hex[:8]}"
+    core = ChatCore()
+    answer = await core.handle_user_request(request.prompt, session_id=session_id)
+    return {"session_id": session_id, "answer": answer}
 
 # ==========================================
 # 3. SIMULATING A CHAT UI UN-AUTHED REQUEST

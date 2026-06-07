@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 32px; max-width: 720px; margin: 0 auto; background: #f5f7fb; color: #1f2937; }
+    h1 { margin-bottom: 16px; }
+    textarea { width: 100%; min-height: 120px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 16px; resize: vertical; }
+    button { margin-top: 12px; padding: 12px 20px; border: none; border-radius: 8px; background: #2563eb; color: white; cursor: pointer; font-size: 16px; }
+    button:hover { background: #1d4ed8; }
+    .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); margin-top: 24px; }
+    .response { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
+    .error { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <h1>AI Chatbot</h1>
+  <div class="card">
+    <form id="chat-form">
+      <label for="prompt">Ask the bot anything:</label>
+      <textarea id="prompt" name="prompt" placeholder="Hey, can you pull up my last 2 orders?" required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  <div class="card" id="result-card" style="display:none;">
+    <h2>Response</h2>
+    <div><strong>Session ID:</strong> <span id="session-id"></span></div>
+    <div class="response" id="response-text"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('chat-form');
+    const resultCard = document.getElementById('result-card');
+    const responseText = document.getElementById('response-text');
+    const sessionIdEl = document.getElementById('session-id');
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const prompt = document.getElementById('prompt').value.trim();
+      if (!prompt) return;
+
+      responseText.textContent = 'Sending request...';
+      resultCard.style.display = 'block';
+      sessionIdEl.textContent = '';
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => ({}));
+          throw new Error(errorBody.detail || response.statusText || 'Request failed');
+        }
+
+        const data = await response.json();
+        sessionIdEl.textContent = data.session_id;
+        responseText.textContent = data.answer;
+      } catch (error) {
+        responseText.textContent = error.message;
+        responseText.classList.add('error');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,7 +1,31 @@
+import sys
+from pathlib import Path
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 
+# Add ai-core source directory to import path so the backend can import chat router.
+ROOT_DIR = Path(__file__).resolve().parents[2]
+AI_CORE_SRC = ROOT_DIR / "ai-core" / "src"
+if str(AI_CORE_SRC) not in sys.path:
+    sys.path.insert(0, str(AI_CORE_SRC))
+
+from chat import router as chat_router
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+static_path = ROOT_DIR / "frontend"
+if static_path.exists():
+    app.mount("/", StaticFiles(directory=str(static_path), html=True), name="frontend")
+
+app.include_router(chat_router)
 
 @app.get("/hello")
 async def hello():
@@ -22,7 +46,6 @@ async def create_item(item: dict):
 @app.get("/cities")
 async def get_cities():
     return {"cities": ["city1", "city2", "city3"]}
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
