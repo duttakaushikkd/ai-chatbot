@@ -1,20 +1,16 @@
 import asyncio
 import os
-from fastmcp import Client, FastMCP
+from fastmcp import Client
 
 
 def create_client():
     """Create and return an MCP client.
 
-    Defaults to an in-memory FastMCP server for local testing.
-    Use MCP_SERVER_URL to connect to a remote MCP HTTP/SSE server.
+    Defaults to a local MCP server at http://127.0.0.1:8090.
+    Use MCP_SERVER_URL to connect to a different MCP HTTP/SSE server.
     """
-    mcp_url = os.environ.get("MCP_SERVER_URL")
-    if mcp_url:
-        return Client(mcp_url)
-
-    server = FastMCP("TestServer")
-    return Client(server)
+    mcp_url = os.environ.get("MCP_SERVER_URL", "http://127.0.0.1:8090")
+    return Client(mcp_url)
 
 
 async def main():

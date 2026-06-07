@@ -27,6 +27,17 @@ if static_path.exists():
 
 app.include_router(chat_router)
 
+@app.get("/api/orders")
+async def get_orders(limit: int = 5):
+    sample_orders = [
+        {"order_id": "A100", "amount": 39.99, "status": "shipped"},
+        {"order_id": "A101", "amount": 84.50, "status": "processing"},
+        {"order_id": "A102", "amount": 15.75, "status": "delivered"},
+        {"order_id": "A103", "amount": 129.00, "status": "shipped"},
+        {"order_id": "A104", "amount": 22.10, "status": "pending"},
+    ]
+    return {"orders": sample_orders[:limit]}
+
 @app.get("/hello")
 async def hello():
     return {"message": "Hello World"}

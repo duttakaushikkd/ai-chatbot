@@ -36,20 +36,28 @@
     const responseText = document.getElementById('response-text');
     const sessionIdEl = document.getElementById('session-id');
 
+    const sessionId = window.localStorage.getItem('chat_session_id') || generateSessionId();
+    window.localStorage.setItem('chat_session_id', sessionId);
+    sessionIdEl.textContent = sessionId;
+
+    function generateSessionId() {
+      return 'sess_' + Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+    }
+
     form.addEventListener('submit', async event => {
       event.preventDefault();
+      responseText.classList.remove('error');
       const prompt = document.getElementById('prompt').value.trim();
       if (!prompt) return;
 
       responseText.textContent = 'Sending request...';
       resultCard.style.display = 'block';
-      sessionIdEl.textContent = '';
 
       try {
         const response = await fetch('/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({ prompt, session_id: sessionId })
         });
 
         if (!response.ok) {
@@ -58,7 +66,6 @@
         }
 
         const data = await response.json();
-        sessionIdEl.textContent = data.session_id;
         responseText.textContent = data.answer;
       } catch (error) {
         responseText.textContent = error.message;
